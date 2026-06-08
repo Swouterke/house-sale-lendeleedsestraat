@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+const COUNTER_NAMESPACE = "house-sale-lendeleedsestraat";
+const UNIQUE_VISITOR_TOTAL_KEY = "unique-visitors-total";
 
 const woning = {
   titel: "Lendeleedsestraat 58, 8870 Izegem",
-  prijs: "Vraagprijs: € 300 000 k.k.",
+  prijs: "Vraagprijs: € 310 000 k.k.",
   type: "Halfopen bebouwing",
   bouwjaar: "1962",
   perceel: "462 m²",
@@ -70,18 +73,119 @@ function InfoCard({ label, waarde }) {
   );
 }
 
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+  return response.json();
+}
+
 export default function App() {
+  const [visitorCount, setVisitorCount] = useState(null);
+  const [shareStatus, setShareStatus] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUniqueVisitors() {
+      try {
+        const ipData = await fetchJson("https://api64.ipify.org?format=json");
+        const rawIp = ipData?.ip;
+
+        if (!rawIp) {
+          throw new Error("No IP received");
+        }
+
+        const safeIpKey = `ip-${rawIp.replaceAll(":", "_").replaceAll(".", "_")}`;
+        const ipHitUrl = `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${safeIpKey}`;
+        const ipCounter = await fetchJson(ipHitUrl);
+
+        let totalCounter;
+        if (ipCounter.value === 1) {
+          const totalHitUrl = `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${UNIQUE_VISITOR_TOTAL_KEY}`;
+          totalCounter = await fetchJson(totalHitUrl);
+        } else {
+          const totalGetUrl = `https://api.countapi.xyz/get/${COUNTER_NAMESPACE}/${UNIQUE_VISITOR_TOTAL_KEY}`;
+          totalCounter = await fetchJson(totalGetUrl);
+        }
+
+        if (!cancelled) {
+          setVisitorCount(totalCounter.value ?? 0);
+        }
+      } catch {
+        if (!cancelled) {
+          setVisitorCount(null);
+        }
+      }
+    }
+
+    loadUniqueVisitors();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: woning.titel,
+      text: `Bekijk deze woning te koop: ${woning.titel}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareStatus("Gedeeld");
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareData.url);
+      setShareStatus("Link gekopieerd");
+    } catch {
+      setShareStatus("Delen niet gelukt");
+    }
+  };
+
   return (
     <div className="pagina">
       <header className="hero">
         <div className="hero-overlay" />
         <div className="hero-content">
-          <p className="badge">Woning Te Koop</p>
+          <div className="hero-top-row" aria-live="polite">
+            <p className="badge">Woning Te Koop</p>
+            <div className="top-tools">
+              <div className="counter-chip">
+                <p className="bezoeker-teller">
+                  Deze woning werd al{" "}
+                  {visitorCount === null ? "..." : visitorCount} keer bekeken
+                </p>
+              </div>
+              <button className="deel-knop" type="button" onClick={handleShare}>
+                <svg
+                  className="deel-icoon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    d="M18 8a3 3 0 1 0-2.82-4H15a3 3 0 0 0 .18 1.02l-7.43 4.01a3 3 0 1 0 0 5.94l7.43 4.01A3 3 0 1 0 16 17.99l-7.43-4.01a3.02 3.02 0 0 0 0-3.96L16 6.01A3 3 0 0 0 18 8Z"
+                    fill="currentColor"
+                  />
+                </svg>
+                Deel
+              </button>
+              {shareStatus ? (
+                <span className="deel-status">{shareStatus}</span>
+              ) : null}
+            </div>
+          </div>
           <h1>{woning.titel}</h1>
           <p className="prijs">{woning.prijs}</p>
           <p className="intro">{woning.beschrijving}</p>
           <a className="cta-knop" href="#contact">
-            Plan een bezoek op de kijkdag &lt;TBD&gt;
+            Plan een bezoek op de kijkdag 12/07/2026
           </a>
         </div>
       </header>
@@ -139,7 +243,8 @@ export default function App() {
               {woning.contactTelefoon}
             </a>{" "}
             of{" "}
-            <a href={`mailto:${woning.contactEmail}`}>{woning.contactEmail}</a>.
+            <a href={`mailto:${woning.contactEmail}`}>{woning.contactEmail} </a>
+            om een slot te boeken op 11/07/2026
           </p>
           <p>
             Adres: <strong>{woning.titel}</strong>
@@ -150,6 +255,17 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
           >
+            <svg
+              className="kaart-icoon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M12 2a7 7 0 0 0-7 7c0 4.59 5.21 10.98 6.08 12a1.2 1.2 0 0 0 1.84 0C13.79 19.98 19 13.59 19 9a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"
+                fill="currentColor"
+              />
+            </svg>
             Bekijk Op Kaart
           </a>
         </section>
