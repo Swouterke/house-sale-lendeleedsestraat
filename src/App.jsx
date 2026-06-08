@@ -5,7 +5,7 @@ const UNIQUE_VISITOR_TOTAL_KEY = "unique-visitors-total";
 
 const woning = {
   titel: "Lendeleedsestraat 58, 8870 Izegem",
-  prijs: "Vraagprijs: € 310 000 k.k.",
+  prijs: "Aanvangsprijs: € 310 000",
   type: "Halfopen bebouwing",
   bouwjaar: "1962",
   perceel: "462 m²",
