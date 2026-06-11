@@ -20,13 +20,13 @@ Boven vinden we 1 master bedroom en 1 ruime kamer, plus een moderne badkamer en 
 Vanaf het eerste verdiep kan je via een vaste trap richting de ruime zolder,
 waar er mogelijkheid is om 1 of meerdere extra kamers of andere ruimtes te maken.
 De ligging net buiten het centrum zorgt voor een rustige omgeving die toch een vlotte verbinding biedt
-richting centrum, rijksweg en autostrade, Ingelmunster, Lendelede, ... .
+richting centrum, scholen, rijksweg en autostrade, Ingelmunster, Lendelede, ... .
 `.trim(),
   kenmerken: [
     "Zuidwest gerichte en makkelijk onderhoudbare tuin met groot terras",
     "Recent gerenoveerd en instapklaar",
     "Rustige ligging nabij scholen, winkels, centrum en autostrade",
-    "Garage + oprit",
+    "Garage & oprit",
     "Apart toilet boven en beneden",
   ],
   contactNaam: "Wouter Vercruysse",
