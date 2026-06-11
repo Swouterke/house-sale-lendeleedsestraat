@@ -23,6 +23,10 @@ body,
   min-height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
   color: var(--tekst);
@@ -35,6 +39,68 @@ body {
 
 .pagina {
   min-height: 100vh;
+}
+
+.jump-menu-wrapper {
+  position: fixed;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 35;
+}
+
+.jump-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid #ffffff6e;
+  border-radius: 999px;
+  padding: 0.48rem 0.78rem;
+  color: #f4fbff;
+  font-weight: 700;
+  background: #0f2d3dba;
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+}
+
+.jump-icoon {
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
+}
+
+.jump-backdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.jump-menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  min-width: 10rem;
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.45rem;
+  border-radius: 0.8rem;
+  border: 1px solid #ffffff54;
+  background: #ffffffec;
+  box-shadow: 0 16px 30px #1022302a;
+}
+
+.jump-menu a {
+  display: block;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.5rem;
+  color: #143745;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.jump-menu a:hover {
+  background: #d9ecf7;
 }
 
 .hero-top-row {
@@ -50,21 +116,6 @@ body {
   align-items: center;
   gap: 0.55rem;
   flex-wrap: wrap;
-}
-
-.counter-chip {
-  padding: 0.28rem 0.45rem;
-  border: 1px solid #ffffff7d;
-  border-radius: 999px;
-  background: #ffffff24;
-  backdrop-filter: blur(7px);
-  box-shadow: 0 8px 16px #1022301f;
-}
-
-.bezoeker-teller {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #f4fbff;
 }
 
 .deel-knop {
@@ -249,6 +300,20 @@ h2 {
   gap: 0.8rem;
 }
 
+.galerij-knop {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.galerij-knop:focus-visible {
+  outline: 3px solid #478fc5;
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
 .galerij-item {
   margin: 0;
   overflow: hidden;
@@ -279,6 +344,87 @@ h2 {
   color: var(--subtekst);
 }
 
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: #0d1926c4;
+  backdrop-filter: blur(4px);
+}
+
+.lightbox-content {
+  position: relative;
+  width: min(62rem, 100%);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid #ffffff3d;
+  background: #0f2836f2;
+  box-shadow: 0 24px 50px #05101870;
+}
+
+.lightbox-sluit {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff1f;
+  color: #f8fbfd;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lightbox-nav {
+  border: 0;
+  border-radius: 999px;
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1.6rem;
+  color: #f8fbfd;
+  background: #ffffff20;
+  cursor: pointer;
+}
+
+.lightbox-foto {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.8rem;
+  background: #ffffff;
+}
+
+.lightbox-foto img {
+  width: 100%;
+  max-height: min(72vh, 45rem);
+  object-fit: contain;
+  display: block;
+  background: #091924;
+}
+
+.lightbox-foto figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  color: #2a3f4a;
+  font-size: 0.92rem;
+}
+
+.lightbox-teller {
+  color: #536a76;
+  white-space: nowrap;
+}
+
 .contact a {
   color: #0d5e6d;
   font-weight: 600;
@@ -298,6 +444,11 @@ h2 {
 }
 
 @media (max-width: 620px) {
+  .jump-menu-wrapper {
+    top: 0.6rem;
+    right: 0.5rem;
+  }
+
   .hero-top-row {
     align-items: flex-start;
     gap: 0.5rem;
@@ -314,5 +465,17 @@ h2 {
   .sectie,
   .contact {
     padding: 1rem;
+  }
+
+  .lightbox-content {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    padding-top: 2.2rem;
+  }
+
+  .lightbox-nav {
+    width: 100%;
+    height: 2.2rem;
+    border-radius: 0.6rem;
   }
 }

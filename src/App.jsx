@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-const COUNTER_NAMESPACE = "house-sale-lendeleedsestraat";
-const UNIQUE_VISITOR_TOTAL_KEY = "unique-visitors-total";
-
 const woning = {
   titel: "Lendeleedsestraat 58, 8870 Izegem",
   prijs: "Aanvangsprijs: € 310 000",
   type: "Halfopen bebouwing",
   bouwjaar: "1962",
   perceel: "462 m²",
-  woonoppervlakte: "200 m²",
+  woonoppervlakte: "155 m²",
   kamers: "2",
   beschrijving: `
 Charmante halfopen, recent gerenoveerde \u00E9\u00E9ngezinswoning met ruime oprit en garage.
@@ -72,59 +69,84 @@ function InfoCard({ label, waarde }) {
   );
 }
 
-async function fetchJson(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
-  }
-  return response.json();
-}
-
 export default function App() {
-  const [visitorCount, setVisitorCount] = useState(null);
   const [shareStatus, setShareStatus] = useState("");
+  const [activeFotoIndex, setActiveFotoIndex] = useState(null);
+  const [jumpMenuOpen, setJumpMenuOpen] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadUniqueVisitors() {
-      try {
-        const ipData = await fetchJson("https://api64.ipify.org?format=json");
-        const rawIp = ipData?.ip;
-
-        if (!rawIp) {
-          throw new Error("No IP received");
-        }
-
-        const safeIpKey = `ip-${rawIp.replaceAll(":", "_").replaceAll(".", "_")}`;
-        const ipHitUrl = `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${safeIpKey}`;
-        const ipCounter = await fetchJson(ipHitUrl);
-
-        let totalCounter;
-        if (ipCounter.value === 1) {
-          const totalHitUrl = `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${UNIQUE_VISITOR_TOTAL_KEY}`;
-          totalCounter = await fetchJson(totalHitUrl);
-        } else {
-          const totalGetUrl = `https://api.countapi.xyz/get/${COUNTER_NAMESPACE}/${UNIQUE_VISITOR_TOTAL_KEY}`;
-          totalCounter = await fetchJson(totalGetUrl);
-        }
-
-        if (!cancelled) {
-          setVisitorCount(totalCounter.value ?? 0);
-        }
-      } catch {
-        if (!cancelled) {
-          setVisitorCount(null);
-        }
-      }
+    if (activeFotoIndex === null) {
+      return undefined;
     }
 
-    loadUniqueVisitors();
+    const handleKeydown = (event) => {
+      if (event.key === "Escape") {
+        setActiveFotoIndex(null);
+      }
+
+      if (event.key === "ArrowRight") {
+        setActiveFotoIndex((huidigeIndex) =>
+          huidigeIndex === null ? 0 : (huidigeIndex + 1) % galerij.length,
+        );
+      }
+
+      if (event.key === "ArrowLeft") {
+        setActiveFotoIndex((huidigeIndex) =>
+          huidigeIndex === null
+            ? 0
+            : (huidigeIndex - 1 + galerij.length) % galerij.length,
+        );
+      }
+    };
+
+    const vorigeOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeydown);
 
     return () => {
-      cancelled = true;
+      document.body.style.overflow = vorigeOverflow;
+      window.removeEventListener("keydown", handleKeydown);
     };
-  }, []);
+  }, [activeFotoIndex]);
+
+  useEffect(() => {
+    if (!jumpMenuOpen) {
+      return undefined;
+    }
+
+    const handleKeydown = (event) => {
+      if (event.key === "Escape") {
+        setJumpMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, [jumpMenuOpen]);
+
+  const openFotoPopup = (index) => {
+    setActiveFotoIndex(index);
+  };
+
+  const closeFotoPopup = () => {
+    setActiveFotoIndex(null);
+  };
+
+  const toonVorigeFoto = () => {
+    setActiveFotoIndex((huidigeIndex) =>
+      huidigeIndex === null
+        ? 0
+        : (huidigeIndex - 1 + galerij.length) % galerij.length,
+    );
+  };
+
+  const toonVolgendeFoto = () => {
+    setActiveFotoIndex((huidigeIndex) =>
+      huidigeIndex === null ? 0 : (huidigeIndex + 1) % galerij.length,
+    );
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -149,18 +171,63 @@ export default function App() {
 
   return (
     <div className="pagina">
+      <div className="jump-menu-wrapper">
+        <button
+          className="jump-toggle"
+          type="button"
+          aria-haspopup="true"
+          aria-expanded={jumpMenuOpen}
+          onClick={() => setJumpMenuOpen((huidig) => !huidig)}
+        >
+          <svg
+            className="jump-icoon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2Zm2.8 7.2-1.8 5.1a1 1 0 0 1-.62.62l-5.1 1.8a.4.4 0 0 1-.5-.5l1.8-5.1a1 1 0 0 1 .62-.62l5.1-1.8a.4.4 0 0 1 .5.5Z"
+              fill="currentColor"
+            />
+          </svg>
+          Spring naar ...
+        </button>
+
+        {jumpMenuOpen ? (
+          <>
+            <button
+              className="jump-backdrop"
+              type="button"
+              aria-label="Sluit spring-menu"
+              onClick={() => setJumpMenuOpen(false)}
+            />
+            <nav className="jump-menu" aria-label="Spring naar sectie">
+              <a href="#details" onClick={() => setJumpMenuOpen(false)}>
+                Gegevens
+              </a>
+              <a href="#troeven" onClick={() => setJumpMenuOpen(false)}>
+                Troeven
+              </a>
+              <a href="#galerij" onClick={() => setJumpMenuOpen(false)}>
+                Fotogalerij
+              </a>
+              <a href="#bod" onClick={() => setJumpMenuOpen(false)}>
+                Bieding
+              </a>
+              <a href="#contact" onClick={() => setJumpMenuOpen(false)}>
+                Contact
+              </a>
+            </nav>
+          </>
+        ) : null}
+      </div>
+
       <header className="hero">
         <div className="hero-overlay" />
         <div className="hero-content">
           <div className="hero-top-row" aria-live="polite">
             <p className="badge">Woning Te Koop</p>
             <div className="top-tools">
-              <div className="counter-chip">
-                <p className="bezoeker-teller">
-                  Deze woning werd al{" "}
-                  {visitorCount === null ? "..." : visitorCount} keer bekeken
-                </p>
-              </div>
               <button className="deel-knop" type="button" onClick={handleShare}>
                 <svg
                   className="deel-icoon"
@@ -190,7 +257,11 @@ export default function App() {
       </header>
 
       <main className="container">
-        <section className="sectie" aria-labelledby="details-titel">
+        <section
+          className="sectie"
+          id="details"
+          aria-labelledby="details-titel"
+        >
           <h2 id="details-titel">Belangrijkste Gegevens</h2>
           <div className="info-grid">
             <InfoCard label="Type" waarde={woning.type} />
@@ -198,11 +269,14 @@ export default function App() {
             <InfoCard label="Perceel" waarde={woning.perceel} />
             <InfoCard label="Woonoppervlakte" waarde={woning.woonoppervlakte} />
             <InfoCard label="Kamers" waarde={woning.kamers} />
-            <InfoCard label="Energie" waarde={woning.energie} />
           </div>
         </section>
 
-        <section className="sectie" aria-labelledby="troeven-titel">
+        <section
+          className="sectie"
+          id="troeven"
+          aria-labelledby="troeven-titel"
+        >
           <h2 id="troeven-titel">Troeven Van Deze Woning</h2>
           <ul className="troeven-lijst">
             {woning.kenmerken.map((kenmerk) => (
@@ -211,7 +285,11 @@ export default function App() {
           </ul>
         </section>
 
-        <section className="sectie" aria-labelledby="galerij-titel">
+        <section
+          className="sectie"
+          id="galerij"
+          aria-labelledby="galerij-titel"
+        >
           <div className="sectie-kop">
             <h2 id="galerij-titel">Fotogalerij</h2>
             <p>
@@ -221,13 +299,45 @@ export default function App() {
             </p>
           </div>
           <div className="galerij-grid">
-            {galerij.map((foto) => (
-              <figure className="galerij-item" key={foto.src}>
-                <img src={foto.src} alt={foto.alt} loading="lazy" />
-                <figcaption>{foto.alt}</figcaption>
-              </figure>
+            {galerij.map((foto, index) => (
+              <button
+                className="galerij-knop"
+                type="button"
+                key={foto.src}
+                onClick={() => openFotoPopup(index)}
+                aria-label={`Open foto: ${foto.alt}`}
+              >
+                <figure className="galerij-item">
+                  <img src={foto.src} alt={foto.alt} loading="lazy" />
+                  <figcaption>{foto.alt}</figcaption>
+                </figure>
+              </button>
             ))}
           </div>
+        </section>
+
+        <section className="sectie" id="bod" aria-labelledby="bod-titel">
+          <h2 id="bod-titel">Bod</h2>
+          <p>
+            Om iedereen op dezelfde manier de kans te geven, werkt de verkoop
+            met een eenmalige biedingsronde. Iedere geïnteresseerde kandidaat
+            kan tot twee dagen na de kijkdagen precies een keer een finaal bod
+            indienen.
+          </p>
+          <p>
+            <strong>Kijkdag(en):</strong> zaterdag 11 juli
+            <br />
+            <strong>Uiterste biedmoment:</strong> dinsdag 14 juli om 12u00
+          </p>
+          <p>
+            Na de deadline beoordeelt de verkoper de ontvangen biedingen en kan
+            het hoogste bod worden aanvaard, zonder bijkomende opbodfase.
+          </p>
+          <p>
+            Elk bod moet een vast bedrag vermelden. Voorstellen met een formule
+            zoals "X euro boven een ander bod" worden niet in behandeling
+            genomen.
+          </p>
         </section>
 
         <section
@@ -269,6 +379,61 @@ export default function App() {
           </a>
         </section>
       </main>
+
+      {activeFotoIndex !== null ? (
+        <div
+          className="lightbox-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Fotogalerij popup"
+          onClick={closeFotoPopup}
+        >
+          <div
+            className="lightbox-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="lightbox-sluit"
+              type="button"
+              onClick={closeFotoPopup}
+              aria-label="Sluit fotogalerij"
+            >
+              ×
+            </button>
+
+            <button
+              className="lightbox-nav"
+              type="button"
+              onClick={toonVorigeFoto}
+              aria-label="Vorige foto"
+            >
+              ‹
+            </button>
+
+            <figure className="lightbox-foto">
+              <img
+                src={galerij[activeFotoIndex].src}
+                alt={galerij[activeFotoIndex].alt}
+              />
+              <figcaption>
+                {galerij[activeFotoIndex].alt}
+                <span className="lightbox-teller">
+                  {activeFotoIndex + 1}/{galerij.length}
+                </span>
+              </figcaption>
+            </figure>
+
+            <button
+              className="lightbox-nav"
+              type="button"
+              onClick={toonVolgendeFoto}
+              aria-label="Volgende foto"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
