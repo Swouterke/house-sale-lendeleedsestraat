@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const woning = {
   titel: "Lendeleedsestraat 58, 8870 Izegem",
-  prijs: "Aanvangsprijs: € 310 000",
+  prijs: "Aanvangsprijs: € 300 000",
   type: "Halfopen bebouwing",
   bouwjaar: "1962",
   perceel: "462 m²",
@@ -329,6 +329,7 @@ export default function App() {
             <br />
             <strong>Uiterste biedmoment:</strong> dinsdag 14 juli om 12u00
           </p>
+          <p></p>
           <p>
             Na de deadline beoordeelt de verkoper de ontvangen biedingen en kan
             het hoogste bod worden aanvaard, zonder bijkomende opbodfase.
