@@ -325,7 +325,7 @@ export default function App() {
             indienen.
           </p>
           <p>
-            <strong>Kijkdag(en):</strong> zaterdag 11 juli
+            <strong>Kijkdag(en):</strong> zondag 12 juli
             <br />
             <strong>Uiterste biedmoment:</strong> dinsdag 14 juli om 12u00
           </p>
