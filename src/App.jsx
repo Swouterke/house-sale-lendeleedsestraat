@@ -11,7 +11,6 @@ const woning = {
   perceel: "462 m²",
   woonoppervlakte: "200 m²",
   kamers: "2",
-  energie: "TBD",
   beschrijving: `
 Charmante halfopen, recent gerenoveerde \u00E9\u00E9ngezinswoning met ruime oprit en garage.
 Op het gelijksvloers vinden we ruime woongedeeltes met een grote keuken, eetplaats en salon,
