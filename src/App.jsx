@@ -28,7 +28,7 @@ richting centrum, scholen, rijksweg en autostrade, Ingelmunster, Lendelede, ... 
   ],
   contactNaam: "Wouter Vercruysse",
   contactTelefoon: "0497 28 32 79",
-  contactEmail: "swouterke@proton.me",
+  contactEmail: "lendeleedsestraat58@proton.me",
   adresKaartLink:
     "https://www.google.com/maps/place/Lendeleedsestraat+58,+8870+Izegem/@50.9138966,3.2248422,584m/data=!3m2!1e3!4b1!4m6!3m5!1s0x47c337629a5bea61:0x20a9d607e9bb1285!8m2!3d50.9138966!4d3.2274171!16s%2Fg%2F11v3pzq6qm?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D",
 };
@@ -321,7 +321,7 @@ export default function App() {
           <p>
             Om iedereen op dezelfde manier de kans te geven, werkt de verkoop
             met een eenmalige biedingsronde. Iedere geïnteresseerde kandidaat
-            kan tot twee dagen na de kijkdagen precies een keer een finaal bod
+            kan tot twee dagen na de kijkdag(en) precies één keer een finaal bod
             indienen.
           </p>
           <p>
