@@ -33,32 +33,41 @@ richting centrum, scholen, rijksweg en autostrade, Ingelmunster, Lendelede, ... 
     "https://www.google.com/maps/place/Lendeleedsestraat+58,+8870+Izegem/@50.9138966,3.2248422,584m/data=!3m2!1e3!4b1!4m6!3m5!1s0x47c337629a5bea61:0x20a9d607e9bb1285!8m2!3d50.9138966!4d3.2274171!16s%2Fg%2F11v3pzq6qm?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D",
 };
 
-const galerij = [
+const galerijBestanden = import.meta.glob(
+  "/public/pics/*.{jpg,jpeg,png,webp,avif,gif}",
   {
-    src: "https://picsum.photos/id/1048/1200/800",
-    alt: "Vooraanzicht van de woning",
+    eager: true,
+    import: "default",
   },
-  {
-    src: "https://picsum.photos/id/1067/1200/800",
-    alt: "Leefruimte met veel lichtinval",
-  },
-  {
-    src: "https://picsum.photos/id/1073/1200/800",
-    alt: "Moderne keuken",
-  },
-  {
-    src: "https://picsum.photos/id/1084/1200/800",
-    alt: "Tuin en terras",
-  },
-  {
-    src: "https://picsum.photos/id/1068/1200/800",
-    alt: "Slaapkamer",
-  },
-  {
-    src: "https://picsum.photos/id/1025/1200/800",
-    alt: "Badkamer",
-  },
-];
+);
+
+const galerij = Object.entries(galerijBestanden)
+  .map(([pad, src]) => {
+    const bestandsNaam = pad.split("/").pop() ?? "Woningfoto";
+    const naamZonderExtensie = bestandsNaam.replace(/\.[^.]+$/, "");
+    const netteNaam = naamZonderExtensie
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return {
+      src,
+      alt: netteNaam ? `Foto ${netteNaam}` : "Woningfoto",
+    };
+  })
+  .sort((a, b) => a.src.localeCompare(b.src));
+
+const documentBestanden = import.meta.glob("/public/files/*", {
+  eager: true,
+  import: "default",
+});
+
+const documenten = Object.entries(documentBestanden)
+  .map(([pad, src]) => ({
+    naam: decodeURIComponent(pad.split("/").pop() ?? "Bestand"),
+    url: src,
+  }))
+  .sort((a, b) => a.naam.localeCompare(b.naam, "nl"));
 
 function InfoCard({ label, waarde }) {
   return (
@@ -73,6 +82,9 @@ export default function App() {
   const [shareStatus, setShareStatus] = useState("");
   const [activeFotoIndex, setActiveFotoIndex] = useState(null);
   const [jumpMenuOpen, setJumpMenuOpen] = useState(false);
+  const [isPortraitInLightbox, setIsPortraitInLightbox] = useState(false);
+  const [documentenPopupOpen, setDocumentenPopupOpen] = useState(false);
+  const [activeDocument, setActiveDocument] = useState(null);
 
   useEffect(() => {
     if (activeFotoIndex === null) {
@@ -99,15 +111,53 @@ export default function App() {
       }
     };
 
-    const vorigeOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeydown);
 
     return () => {
-      document.body.style.overflow = vorigeOverflow;
       window.removeEventListener("keydown", handleKeydown);
     };
   }, [activeFotoIndex]);
+
+  useEffect(() => {
+    if (!documentenPopupOpen && activeDocument === null) {
+      return undefined;
+    }
+
+    const handleKeydown = (event) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      if (activeDocument !== null) {
+        setActiveDocument(null);
+        return;
+      }
+
+      setDocumentenPopupOpen(false);
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, [documentenPopupOpen, activeDocument]);
+
+  useEffect(() => {
+    if (
+      activeFotoIndex === null &&
+      !documentenPopupOpen &&
+      activeDocument === null
+    ) {
+      return undefined;
+    }
+
+    const vorigeOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = vorigeOverflow;
+    };
+  }, [activeFotoIndex, documentenPopupOpen, activeDocument]);
 
   useEffect(() => {
     if (!jumpMenuOpen) {
@@ -127,14 +177,17 @@ export default function App() {
   }, [jumpMenuOpen]);
 
   const openFotoPopup = (index) => {
+    setIsPortraitInLightbox(false);
     setActiveFotoIndex(index);
   };
 
   const closeFotoPopup = () => {
+    setIsPortraitInLightbox(false);
     setActiveFotoIndex(null);
   };
 
   const toonVorigeFoto = () => {
+    setIsPortraitInLightbox(false);
     setActiveFotoIndex((huidigeIndex) =>
       huidigeIndex === null
         ? 0
@@ -143,9 +196,15 @@ export default function App() {
   };
 
   const toonVolgendeFoto = () => {
+    setIsPortraitInLightbox(false);
     setActiveFotoIndex((huidigeIndex) =>
       huidigeIndex === null ? 0 : (huidigeIndex + 1) % galerij.length,
     );
+  };
+
+  const handleLightboxImageLoad = (event) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget;
+    setIsPortraitInLightbox(naturalHeight > naturalWidth);
   };
 
   const handleShare = async () => {
@@ -167,6 +226,23 @@ export default function App() {
     } catch {
       setShareStatus("Delen niet gelukt");
     }
+  };
+
+  const openDocumentenPopup = () => {
+    setDocumentenPopupOpen(true);
+  };
+
+  const closeDocumentenPopup = () => {
+    setDocumentenPopupOpen(false);
+  };
+
+  const openDocumentViewer = (documentItem) => {
+    setActiveDocument(documentItem);
+    setDocumentenPopupOpen(false);
+  };
+
+  const closeDocumentViewer = () => {
+    setActiveDocument(null);
   };
 
   return (
@@ -250,9 +326,29 @@ export default function App() {
           <h1>{woning.titel}</h1>
           <p className="prijs">{woning.prijs}</p>
           <p className="intro">{woning.beschrijving}</p>
-          <a className="cta-knop" href="#contact">
-            Plan een bezoek op de kijkdag 12/07/2026
-          </a>
+          <div className="hero-cta-groep">
+            <a className="cta-knop" href="#contact">
+              Plan een bezoek op de kijkdag 12/07/2026
+            </a>
+            <button
+              className="cta-knop cta-knop-secundair"
+              type="button"
+              onClick={openDocumentenPopup}
+            >
+              <svg
+                className="document-icoon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7Zm0 1.5L17.5 7H14ZM9 11h6v1.5H9Zm0 3.5h6V16H9Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Bekijk documenten
+            </button>
+          </div>
         </div>
       </header>
 
@@ -293,9 +389,8 @@ export default function App() {
           <div className="sectie-kop">
             <h2 id="galerij-titel">Fotogalerij</h2>
             <p>
-              Plaatshouders zijn actief. Vervang deze URL&apos;s door je eigen
-              foto&apos;s (bijvoorbeeld in de map <strong>public/images</strong>
-              ).
+              Alle beelden uit de map <strong>public/pics</strong> worden
+              automatisch getoond.
             </p>
           </div>
           <div className="galerij-grid">
@@ -309,7 +404,9 @@ export default function App() {
               >
                 <figure className="galerij-item">
                   <img src={foto.src} alt={foto.alt} loading="lazy" />
-                  <figcaption>{foto.alt}</figcaption>
+                  <span className="foto-teller">
+                    {index + 1}/{galerij.length}
+                  </span>
                 </figure>
               </button>
             ))}
@@ -381,6 +478,82 @@ export default function App() {
         </section>
       </main>
 
+      {documentenPopupOpen ? (
+        <div
+          className="documenten-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Documenten"
+          onClick={closeDocumentenPopup}
+        >
+          <div
+            className="documenten-popup"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="lightbox-sluit"
+              type="button"
+              onClick={closeDocumentenPopup}
+              aria-label="Sluit documentenpopup"
+            >
+              ×
+            </button>
+            <h3>Beschikbare bestanden</h3>
+            {documenten.length > 0 ? (
+              <ul className="document-lijst">
+                {documenten.map((documentItem) => (
+                  <li key={documentItem.url}>
+                    <button
+                      className="document-link"
+                      type="button"
+                      onClick={() => openDocumentViewer(documentItem)}
+                    >
+                      {documentItem.naam}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="document-leeg">
+                Geen bestanden gevonden in de map public/files.
+              </p>
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {activeDocument !== null ? (
+        <div
+          className="document-viewer-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Document bekijken: ${activeDocument.naam}`}
+          onClick={closeDocumentViewer}
+        >
+          <div
+            className="document-viewer"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="document-viewer-kop">
+              <p>{activeDocument.naam}</p>
+              <button
+                className="lightbox-sluit"
+                type="button"
+                onClick={closeDocumentViewer}
+                aria-label="Sluit documentviewer"
+              >
+                ×
+              </button>
+            </div>
+            <iframe
+              className="document-iframe"
+              src={activeDocument.url}
+              title={activeDocument.naam}
+            />
+          </div>
+        </div>
+      ) : null}
+
       {activeFotoIndex !== null ? (
         <div
           className="lightbox-overlay"
@@ -390,7 +563,7 @@ export default function App() {
           onClick={closeFotoPopup}
         >
           <div
-            className="lightbox-content"
+            className={`lightbox-content ${isPortraitInLightbox ? "lightbox-content-portrait" : ""}`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -415,13 +588,11 @@ export default function App() {
               <img
                 src={galerij[activeFotoIndex].src}
                 alt={galerij[activeFotoIndex].alt}
+                onLoad={handleLightboxImageLoad}
               />
-              <figcaption>
-                {galerij[activeFotoIndex].alt}
-                <span className="lightbox-teller">
-                  {activeFotoIndex + 1}/{galerij.length}
-                </span>
-              </figcaption>
+              <span className="foto-teller lightbox-teller">
+                {activeFotoIndex + 1}/{galerij.length}
+              </span>
             </figure>
 
             <button
