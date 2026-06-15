@@ -62,11 +62,22 @@ const documentBestanden = import.meta.glob("/public/files/*", {
   import: "default",
 });
 
+const imageBestandRegex = /\.(jpg|jpeg|png|webp|avif|gif|bmp|svg)$/i;
+const pdfBestandRegex = /\.pdf$/i;
+
 const documenten = Object.entries(documentBestanden)
-  .map(([pad, src]) => ({
-    naam: decodeURIComponent(pad.split("/").pop() ?? "Bestand"),
-    url: src,
-  }))
+  .map(([pad, src]) => {
+    const naam = decodeURIComponent(pad.split("/").pop() ?? "Bestand");
+    const isAfbeelding = imageBestandRegex.test(naam);
+    const isPdf = pdfBestandRegex.test(naam);
+
+    return {
+      naam,
+      url: src,
+      isAfbeelding,
+      viewerUrl: isPdf ? `${src}#zoom=page-width` : src,
+    };
+  })
   .sort((a, b) => a.naam.localeCompare(b.naam, "nl"));
 
 function InfoCard({ label, waarde }) {
@@ -388,10 +399,6 @@ export default function App() {
         >
           <div className="sectie-kop">
             <h2 id="galerij-titel">Fotogalerij</h2>
-            <p>
-              Alle beelden uit de map <strong>public/pics</strong> worden
-              automatisch getoond.
-            </p>
           </div>
           <div className="galerij-grid">
             {galerij.map((foto, index) => (
@@ -545,11 +552,21 @@ export default function App() {
                 ×
               </button>
             </div>
-            <iframe
-              className="document-iframe"
-              src={activeDocument.url}
-              title={activeDocument.naam}
-            />
+            {activeDocument.isAfbeelding ? (
+              <div className="document-media-container">
+                <img
+                  className="document-afbeelding"
+                  src={activeDocument.url}
+                  alt={activeDocument.naam}
+                />
+              </div>
+            ) : (
+              <iframe
+                className="document-iframe"
+                src={activeDocument.viewerUrl}
+                title={activeDocument.naam}
+              />
+            )}
           </div>
         </div>
       ) : null}
