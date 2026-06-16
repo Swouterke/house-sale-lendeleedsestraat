@@ -7,7 +7,7 @@ const woning = {
   bouwjaar: "1962",
   perceel: "462 m²",
   woonoppervlakte: "155 m²",
-  kamers: "2",
+  kamers: "2 \n (mogelijkheid tot 3 of 4)",
   beschrijving: `
 Charmante halfopen, recent gerenoveerde \u00E9\u00E9ngezinswoning met ruime oprit en garage.
 Op het gelijksvloers vinden we ruime woongedeeltes met een grote keuken, eetplaats en salon,
@@ -81,10 +81,24 @@ const documenten = Object.entries(documentBestanden)
   .sort((a, b) => a.naam.localeCompare(b.naam, "nl"));
 
 function InfoCard({ label, waarde }) {
+  const waardeRegels = String(waarde)
+    .split("\n")
+    .map((regel) => regel.trim())
+    .filter(Boolean);
+
   return (
     <article className="info-card">
       <p className="info-label">{label}</p>
-      <p className="info-waarde">{waarde}</p>
+      <p className="info-waarde">
+        {waardeRegels.map((regel, index) => (
+          <span
+            key={`${label}-${regel}`}
+            className={index === 0 ? "info-waarde-hoofd" : "info-waarde-sub"}
+          >
+            {regel}
+          </span>
+        ))}
+      </p>
     </article>
   );
 }

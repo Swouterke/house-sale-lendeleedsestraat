@@ -311,6 +311,18 @@ h2 {
   font-weight: 700;
 }
 
+.info-waarde-hoofd,
+.info-waarde-sub {
+  display: block;
+}
+
+.info-waarde-sub {
+  margin-top: 0.12rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--subtekst);
+}
+
 .troeven-lijst {
   margin: 0;
   padding-left: 1.2rem;
