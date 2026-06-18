@@ -80,6 +80,14 @@ const documenten = Object.entries(documentBestanden)
   })
   .sort((a, b) => a.naam.localeCompare(b.naam, "nl"));
 
+const bodDocumentRegex = /bod[\s_-]*tot[\s_-]*aankoop/i;
+const bodDocumenten = documenten.filter((documentItem) =>
+  bodDocumentRegex.test(documentItem.naam),
+);
+const attestenDocumenten = documenten.filter(
+  (documentItem) => !bodDocumentRegex.test(documentItem.naam),
+);
+
 function InfoCard({ label, waarde }) {
   const waardeRegels = String(waarde)
     .split("\n")
@@ -390,6 +398,7 @@ export default function App() {
             <InfoCard label="Perceel" waarde={woning.perceel} />
             <InfoCard label="Woonoppervlakte" waarde={woning.woonoppervlakte} />
             <InfoCard label="Kamers" waarde={woning.kamers} />
+            <InfoCard label="EPC" waarde={"D"} />
           </div>
         </section>
 
@@ -520,20 +529,47 @@ export default function App() {
               ×
             </button>
             <h3>Beschikbare bestanden</h3>
+            <div className="documenten-divider" aria-hidden="true" />
             {documenten.length > 0 ? (
-              <ul className="document-lijst">
-                {documenten.map((documentItem) => (
-                  <li key={documentItem.url}>
-                    <button
-                      className="document-link"
-                      type="button"
-                      onClick={() => openDocumentViewer(documentItem)}
-                    >
-                      {documentItem.naam}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <div className="document-secties">
+                {bodDocumenten.length > 0 ? (
+                  <section className="document-sectie" aria-label="Bod">
+                    <h4 className="document-sectie-titel">Bod</h4>
+                    <ul className="document-lijst">
+                      {bodDocumenten.map((documentItem) => (
+                        <li key={documentItem.url}>
+                          <button
+                            className="document-link"
+                            type="button"
+                            onClick={() => openDocumentViewer(documentItem)}
+                          >
+                            {documentItem.naam}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+
+                {attestenDocumenten.length > 0 ? (
+                  <section className="document-sectie" aria-label="Attesten">
+                    <h4 className="document-sectie-titel">Attesten</h4>
+                    <ul className="document-lijst">
+                      {attestenDocumenten.map((documentItem) => (
+                        <li key={documentItem.url}>
+                          <button
+                            className="document-link"
+                            type="button"
+                            onClick={() => openDocumentViewer(documentItem)}
+                          >
+                            {documentItem.naam}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+              </div>
             ) : (
               <p className="document-leeg">
                 Geen bestanden gevonden in de map public/files.
