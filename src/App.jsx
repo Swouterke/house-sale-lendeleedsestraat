@@ -10,9 +10,9 @@ const woning = {
   kamers: "2 \n (mogelijkheid tot 3 of 4)",
   beschrijving: `
 Charmante halfopen, recent gerenoveerde \u00E9\u00E9ngezinswoning met ruime oprit en garage.
-Op het gelijksvloers vinden we ruime woongedeeltes met een grote keuken, eetplaats en salon,
-een in het huis ge\u00EFntegreerde veranda als extra ruimte en een toilet.
-De keuken kijkt uit op een gezellige groene tuin met omheining langs de ene kant en een hoge struik langs de andere kant.
+Op het gelijksvloers vinden we ruime woongedeeltes met een grote lichtrijke keuken, eetplaats en salon,
+een in het huis ge\u00EFntegreerde veranda als extra ruimte, een apart toilet en een kelder.
+De keuken kijkt uit op een gezellige groene tuin. 
 Boven vinden we 1 master bedroom en 1 ruime kamer, plus een moderne badkamer en apart toilet.
 Vanaf het eerste verdiep kan je via een vaste trap richting de ruime zolder,
 waar er mogelijkheid is om 1 of meerdere extra kamers of andere ruimtes te maken.
@@ -448,11 +448,11 @@ export default function App() {
           <p>
             Om iedereen op dezelfde manier de kans te geven, werkt de verkoop
             met een eenmalige biedingsronde. Iedere geïnteresseerde kandidaat
-            kan tot twee dagen na de kijkdag(en) precies één keer een finaal bod
+            kan tot twee dagen na de kijkdag precies één keer een finaal bod
             indienen.
           </p>
           <p>
-            <strong>Kijkdag(en):</strong> zondag 12 juli
+            <strong>Kijkdag:</strong> zondag 12 juli
             <br />
             <strong>Uiterste biedmoment:</strong> dinsdag 14 juli om 12u00
           </p>
@@ -481,7 +481,7 @@ export default function App() {
             </a>{" "}
             of{" "}
             <a href={`mailto:${woning.contactEmail}`}>{woning.contactEmail} </a>
-            om een slot te boeken op 11/07/2026
+            om een slot te boeken op 12/07/2026
           </p>
           <p>
             Adres: <strong>{woning.titel}</strong>
@@ -530,6 +530,9 @@ export default function App() {
             </button>
             <h3>Beschikbare bestanden</h3>
             <div className="documenten-divider" aria-hidden="true" />
+            <p className="document-link document-link-placeholder">
+              Stedenbouwkundig attest onderweg ...
+            </p>
             {documenten.length > 0 ? (
               <div className="document-secties">
                 {bodDocumenten.length > 0 ? (

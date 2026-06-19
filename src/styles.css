@@ -428,11 +428,16 @@ h2 {
 .documenten-popup {
   position: relative;
   width: min(34rem, 100%);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   padding: 1.2rem;
   border-radius: 0.95rem;
   border: 1px solid #ffffff48;
   background: #f7fbff;
   box-shadow: 0 24px 50px #05101854;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .documenten-popup h3 {
@@ -492,6 +497,15 @@ h2 {
 .document-leeg {
   margin: 0;
   color: #4b5b64;
+}
+
+.document-link-placeholder {
+  margin: 0 0 0.9rem;
+  border-color: #f0c28a;
+  background: #fff1df;
+  color: #7a4500;
+  font-style: italic;
+  cursor: default;
 }
 
 .document-viewer {
