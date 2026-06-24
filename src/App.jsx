@@ -529,10 +529,7 @@ export default function App() {
               ×
             </button>
             <h3>Beschikbare bestanden</h3>
-            <div className="documenten-divider" aria-hidden="true" />
-            <p className="document-link document-link-placeholder">
-              Stedenbouwkundig attest onderweg ...
-            </p>
+
             {documenten.length > 0 ? (
               <div className="document-secties">
                 {bodDocumenten.length > 0 ? (
